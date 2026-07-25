@@ -4,6 +4,9 @@ import './App.css';
 import KitchenDashboard from './components/KitchenDashboard';
 import AdminDashboard from './components/AdminDashboard';
 
+// --- PRODUCTION API BASE URL ---
+const API_BASE_URL = "https://king-crave-backend.onrender.com";
+
 function App() {
   // --- CORE STATES ---
   const [activeTab, setActiveTab] = useState('menu');
@@ -39,7 +42,7 @@ function App() {
 
   // --- API FETCHING ---
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/menu/')
+    fetch(`${API_BASE_URL}/api/menu/`)
       .then(res => res.json())
       .then(data => {
         setCategories(data);
@@ -50,7 +53,7 @@ function App() {
 
   useEffect(() => {
     const fetchMenu = () => {
-      fetch('http://127.0.0.1:8000/api/menu/')
+      fetch(`${API_BASE_URL}/api/menu/`)
         .then(res => res.json())
         .then(data => {
           setCategories(data);
@@ -65,7 +68,7 @@ function App() {
 
   useEffect(() => {
     if (token) {
-      fetch('http://127.0.0.1:8000/api/users/profile/', {
+      fetch(`${API_BASE_URL}/api/users/profile/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       .then(res => {
@@ -76,7 +79,7 @@ function App() {
       .catch(() => handleLogout());
 
       const fetchOrders = () => {
-        fetch('http://127.0.0.1:8000/api/orders/', {
+        fetch(`${API_BASE_URL}/api/orders/`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         .then(res => res.json())
@@ -98,7 +101,7 @@ function App() {
     e.preventDefault();
     setAuthError('');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/send-otp/', {
+      const response = await fetch(`${API_BASE_URL}/api/users/send-otp/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: authEmail })
@@ -114,12 +117,12 @@ function App() {
     e.preventDefault();
     setAuthError('');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/register/', {
+      const response = await fetch(`${API_BASE_URL}/api/users/register/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: authEmail, password: authPassword, first_name: authFirstName, last_name: authLastName })
+        body: JSON.stringify({ email: authEmail, password: authPassword, first_name: authFirstName, last_name: authLastName, otp: enteredOtp })
       });
-      if (!response.ok) throw new Error('Registration failed. Check password length (min 8).');
+      if (!response.ok) throw new Error('Registration failed. Check password length (min 8) or OTP.');
       await handleLogin(e); 
     } catch (err) {
       setAuthError(err.message);
@@ -130,7 +133,7 @@ function App() {
     e.preventDefault();
     setAuthError('');
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/token/', {
+      const response = await fetch(`${API_BASE_URL}/api/token/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: authEmail, password: authPassword })
@@ -185,7 +188,7 @@ function App() {
         special_instructions: specialInstructions 
       };
 
-      const response = await fetch('http://127.0.0.1:8000/api/checkout/', {
+      const response = await fetch(`${API_BASE_URL}/api/checkout/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -196,7 +199,7 @@ function App() {
         setCart([]);
         setSpecialInstructions('');
         
-        fetch('http://127.0.0.1:8000/api/orders/', {
+        fetch(`${API_BASE_URL}/api/orders/`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         .then(res => res.json())
