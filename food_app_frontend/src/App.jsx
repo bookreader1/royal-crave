@@ -4,8 +4,12 @@ import './App.css';
 import KitchenDashboard from './components/KitchenDashboard';
 import AdminDashboard from './components/AdminDashboard';
 
-// --- PRODUCTION API BASE URL ---
-const API_BASE_URL = "https://king-crave-backend.onrender.com";
+// --- SMART API BASE URL (Auto-switches between Local and Production) ---
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? "http://127.0.0.1:8000"
+  : "https://king-crave-backend.onrender.com";
+
+  
 
 function App() {
   // --- CORE STATES ---
@@ -48,7 +52,8 @@ function App() {
         setCategories(data);
         if (data.length > 0) setActiveCategory(data[0].id);
         setLoading(false);
-      });
+      })
+      .catch(err => console.error("Error fetching menu:", err));
   }, []);
 
   useEffect(() => {
@@ -58,10 +63,10 @@ function App() {
         .then(data => {
           setCategories(data);
           setLoading(false);
-        });
+        })
+        .catch(err => console.error("Error polling menu:", err));
     };
 
-    fetchMenu(); 
     const intervalId = setInterval(fetchMenu, 10000); 
     return () => clearInterval(intervalId); 
   }, []);
@@ -97,8 +102,7 @@ function App() {
   }, [token]);
 
   // --- AUTH HANDLERS ---
-  const handleRequestOtp = async (e) => {
-    e.preventDefault();
+  const handleRequestOtp = async () => {
     setAuthError('');
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/send-otp/`, {
@@ -113,8 +117,7 @@ function App() {
     }
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const handleRegister = async () => {
     setAuthError('');
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/register/`, {
@@ -123,27 +126,32 @@ function App() {
         body: JSON.stringify({ email: authEmail, password: authPassword, first_name: authFirstName, last_name: authLastName, otp: enteredOtp })
       });
       if (!response.ok) throw new Error('Registration failed. Check password length (min 8) or OTP.');
-      await handleLogin(e); 
+      await executeLoginCall(); 
     } catch (err) {
       setAuthError(err.message);
     }
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const executeLoginCall = async () => {
+    const response = await fetch(`${API_BASE_URL}/api/token/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: authEmail, password: authPassword })
+    });
+    if (!response.ok) throw new Error('Invalid email or password');
+    const data = await response.json();
+    localStorage.setItem('access_token', data.access);
+    localStorage.setItem('refresh_token', data.refresh);
+    setToken(data.access);
+    setShowLoginModal(false);
+    setOtpStep(false);
+  };
+
+const handleLogin = async () => {
+    alert("Button clicked!"); // <-- Immediate feedback test
     setAuthError('');
     try {
-      const response = await fetch(`${API_BASE_URL}/api/token/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: authEmail, password: authPassword })
-      });
-      if (!response.ok) throw new Error('Invalid email or password');
-      const data = await response.json();
-      localStorage.setItem('access_token', data.access);
-      localStorage.setItem('refresh_token', data.refresh);
-      setToken(data.access);
-      setShowLoginModal(false);
+      await executeLoginCall();
     } catch (err) {
       setAuthError(err.message);
     }
@@ -172,6 +180,8 @@ function App() {
     setCart(prev => prev.map(item => item.id === id ? { ...item, quantity: item.quantity + delta } : item).filter(i => i.quantity > 0));
   };
 
+
+  
   const handleCheckout = async () => {
     if (!token) {
       alert("Please login from the Profile tab to place an order.");
@@ -248,9 +258,9 @@ function App() {
       
       {/* LANDING GATEWAY */}
       {!token && !isGuest ? (
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#3E2723', padding: '20px', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '3.5rem', margin: '0 0 10px 0', color: '#EFEBE0', fontFamily: 'serif' }}>Royal Crave</h1>
-          <p style={{ fontSize: '1.2rem', color: '#BCAAA4', marginBottom: '50px' }}>Your premium dining experience.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100dvh', width: '100vw', background: '#3E2723', padding: '20px', textAlign: 'center', boxSizing: 'border-box', position: 'fixed', top: 0, left: 0, zIndex: 9999, overflow: 'hidden' }}>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 3.5rem)', margin: '0 0 10px 0', color: '#EFEBE0', fontFamily: 'serif' }}>Royal Crave</h1>
+          <p style={{ fontSize: 'clamp(1rem, 4vw, 1.2rem)', color: '#BCAAA4', marginBottom: '40px' }}>Your premium dining experience.</p>
           
           <button className="checkout-btn" onClick={() => { setIsRegistering(false); setShowLoginModal(true); }} style={{ width: '100%', maxWidth: '300px', marginBottom: '15px', background: '#EFEBE0', color: '#3E2723' }}>
             Log In
@@ -468,37 +478,37 @@ function App() {
             <button className="close-btn" onClick={() => setShowLoginModal(false)}>✕</button>
           </div>
           
-          <form className="login-form" onSubmit={otpStep ? handleRegister : (isRegistering ? handleRequestOtp : handleLogin)}>
+          <div className="login-form">
             {authError && <p className="error-text" style={{color: 'red', fontSize: '0.9rem'}}>{authError}</p>}
             
             {isRegistering && !otpStep && (
               <>
                 <div style={{display: 'flex', gap: '10px', marginBottom: '10px'}}>
-                  <input type="text" placeholder="First Name" required value={authFirstName} onChange={e => setAuthFirstName(e.target.value)} />
+                  <input type="text" placeholder="First Name" value={authFirstName} onChange={e => setAuthFirstName(e.target.value)} />
                   <input type="text" placeholder="Last Name" value={authLastName} onChange={e => setAuthLastName(e.target.value)} />
                 </div>
-                <input type="email" placeholder="Email Address" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{marginBottom: '10px'}} />
-                <button type="submit" className="checkout-btn" style={{marginTop: '10px'}}>Send Verification OTP</button>
+                <input type="email" placeholder="Email Address" value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{marginBottom: '10px'}} />
+                <button type="button" className="checkout-btn" onClick={handleRequestOtp} style={{marginTop: '10px'}}>Send Verification OTP</button>
               </>
             )}
 
             {isRegistering && otpStep && (
               <>
-                <p style={{color: '#BCAAA4', fontSize: '0.9rem', marginBottom: '10px'}}>Enter the 6-digit code sent to {authEmail}</p>
-                <input type="text" placeholder="Enter 6-digit OTP" required value={enteredOtp} onChange={e => setEnteredOtp(e.target.value)} style={{marginBottom: '10px'}} />
-                <input type="password" placeholder="Choose Password (min 8 chars)" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} style={{marginBottom: '10px'}} />
-                <button type="submit" className="checkout-btn" style={{marginTop: '10px'}}>Verify & Complete Registration</button>
+                <p style={{color: '#8D6E63', fontSize: '0.9rem', marginBottom: '10px'}}>Enter the 6-digit code sent to {authEmail}</p>
+                <input type="text" placeholder="Enter 6-digit OTP" value={enteredOtp} onChange={e => setEnteredOtp(e.target.value)} style={{marginBottom: '10px'}} />
+                <input type="password" placeholder="Choose Password (min 8 chars)" value={authPassword} onChange={e => setAuthPassword(e.target.value)} style={{marginBottom: '10px'}} />
+                <button type="button" className="checkout-btn" onClick={handleRegister} style={{marginTop: '10px'}}>Verify & Complete Registration</button>
               </>
             )}
 
             {!isRegistering && (
               <>
-                <input type="email" placeholder="Email Address" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{marginBottom: '10px'}}/>
-                <input type="password" placeholder="Password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} />
-                <button type="submit" className="checkout-btn" style={{marginTop: '20px'}}>Sign In</button>
+                <input type="email" placeholder="Email Address" value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{marginBottom: '10px'}}/>
+                <input type="password" placeholder="Password" value={authPassword} onChange={e => setAuthPassword(e.target.value)} />
+                <button type="button" className="checkout-btn" onClick={handleLogin} style={{marginTop: '20px'}}>Sign In</button>
               </>
             )}
-          </form>
+          </div>
 
           <div style={{textAlign: 'center', marginTop: '20px'}}>
             <p style={{color: '#8D6E63', fontSize: '0.9rem'}}>
@@ -513,6 +523,7 @@ function App() {
       </div>
 
     </div>
+    
   )
 }
 

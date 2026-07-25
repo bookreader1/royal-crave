@@ -12,19 +12,20 @@
 
 body { 
   background-color: #1a1a1a; /* Dark background for desktop to frame the app */ 
+  overflow-x: hidden;
 }
 
 .app-wrapper {
   display: flex;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .mobile-container {
   width: 100%;
   max-width: 430px; 
-  background-color: #FAFAFA; /* Crisp Gallery White */
-  min-height: 100vh;
+  background-color: #FAF8F5; /* Premium Light Tone */
+  min-height: 100dvh;
   position: relative;
   box-shadow: 0 0 20px rgba(0,0,0,0.5);
   overflow-x: hidden;
@@ -32,32 +33,32 @@ body {
 }
 
 .status-screen {
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #FAFAFA;
-  color: #C5A059;
+  background: #FAF8F5;
+  color: #3E2723;
   font-weight: bold;
   font-size: 1.2rem;
 }
 
-/* --- 2. Header & Icons --- */
+/* --- 2. Header & Sticky Stack --- */
 .app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 20px 10px 20px;
-  background: #FAFAFA;
+  padding: 15px 20px;
+  background: #3E2723; /* Royal Theme Primary */
   position: sticky;
   top: 0;
-  z-index: 20;
-  border-bottom: 1px solid rgba(0,0,0,0.03);
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .header-text h1 {
-  font-size: 1.8rem;
-  color: #1A1A1A; /* Midnight Black */
+  font-size: 1.6rem;
+  color: #EFEBE0; /* Light Cream */
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -77,17 +78,9 @@ body {
 }
 
 .app-header .icon-btn svg {
-  color: #1A1A1A !important;
+  color: #EFEBE0 !important;
   stroke-width: 2px;
 }
-
-.app-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 40 !important;
-  background: #FAFAFA;
-}
-
 
 /* Cart Badge */
 .icon-btn.cart {
@@ -96,8 +89,8 @@ body {
 
 .cart-badge {
   position: absolute;
-  top: 0px;
-  right: 0px;
+  top: 2px;
+  right: 2px;
   background: #C5A059; /* Champagne Gold */
   color: #1A1A1A;
   font-size: 0.7rem;
@@ -108,23 +101,24 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #FAFAFA;
+  border: 2px solid #3E2723;
   box-shadow: 0 2px 6px rgba(197, 160, 89, 0.4);
 }
 
-/* --- 3. Search Bar --- */
+/* --- 3. Sticky Search Bar --- */
 .search-filter-section {
-  position: sticky !important;
-  top: 61px !important; /* Adjust this number based on your header's actual pixel height */
-  z-index: 30 !important;
-  background: #FAFAFA !important;
+  position: sticky;
+  top: 70px; /* Sits cleanly below the header */
+  z-index: 99;
+  background: #FAF8F5;
+  padding: 12px 20px 8px 20px;
 }
 
 .search-bar-container {
   display: flex;
   align-items: center;
   background: #FFFFFF;
-  border: 1px solid #EAEAEA;
+  border: 1px solid #D7CCC8;
   border-radius: 12px;
   padding: 12px 16px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.03);
@@ -132,12 +126,12 @@ body {
 }
 
 .search-bar-container:focus-within {
-  border-color: #C5A059;
-  box-shadow: 0 4px 15px rgba(197, 160, 89, 0.15);
+  border-color: #3E2723;
+  box-shadow: 0 4px 15px rgba(62, 39, 35, 0.1);
 }
 
 .search-bar-container svg {
-  color: #C5A059 !important;
+  color: #8D6E63 !important;
 }
 
 .search-input {
@@ -151,17 +145,22 @@ body {
 }
 
 .search-input::placeholder {
-  color: #A0A0A0;
+  color: #A1887F;
 }
 
-/* --- 4. Category Pills --- */
+/* --- 4. Sticky Category Pills --- */
 .category-scroll {
+  position: sticky;
+  top: 138px; /* Sits below header and search bar */
+  z-index: 98;
+  background: #FAF8F5;
   display: flex;
-  gap: 12px;
-  padding: 15px 20px;
+  gap: 10px;
+  padding: 8px 20px 14px 20px;
   overflow-x: auto;
   scrollbar-width: none; 
-  background: #FAFAFA;
+  white-space: nowrap;
+  box-shadow: 0 4px 6px -4px rgba(0,0,0,0.05);
 }
 
 .category-scroll::-webkit-scrollbar { 
@@ -169,44 +168,45 @@ body {
 }
 
 .category-pill {
-  padding: 10px 24px;
-  border-radius: 30px;
-  border: 1px solid #EAEAEA;
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1.5px solid #D7CCC8;
   font-weight: 600;
   font-size: 0.9rem;
   white-space: nowrap;
   cursor: pointer;
   background-color: #FFFFFF;
-  color: #888888;
-  transition: 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  color: #5D4037;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .category-pill.active {
-  background-color: #1A1A1A;
-  color: #C5A059;
-  border-color: #1A1A1A;
-  box-shadow: 0 6px 15px rgba(26, 26, 26, 0.25);
+  background-color: #3E2723 !important;
+  color: #EFEBE0 !important;
+  border-color: #3E2723 !important;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(62, 39, 35, 0.25);
 }
 
 /* --- 5. Premium Food Cards --- */
 .items-list {
-  padding: 10px 20px 30px 20px;
+  padding: 15px 20px 30px 20px;
 }
 
 .premium-card {
   background: #FFFFFF;
   border-radius: 16px;
   overflow: hidden;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.04);
-  border: 1px solid #F0F0F0;
+  border: 1px solid #EFEBE0;
 }
 
 .card-image-container {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 180px;
 }
 
 .card-image {
@@ -216,39 +216,36 @@ body {
 }
 
 .card-content {
-  padding: 20px;
+  padding: 16px;
 }
 
 .card-header-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .item-title {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: #1A1A1A;
   font-weight: 800;
   line-height: 1.3;
   font-family: 'Playfair Display', Georgia, serif;
-  letter-spacing: -0.3px;
 }
 
 .item-price {
-  font-size: 1.2rem;
-  color: #C5A059;
+  font-size: 1.15rem;
+  color: #3E2723;
   font-weight: 700;
   margin-left: 15px;
 }
 
 .card-content p {
-  color: #999999;
+  color: #795548;
   font-size: 0.85rem;
   line-height: 1.4;
-  margin-top: -5px;
-  margin-bottom: 15px;
-  font-style: italic;
+  margin-bottom: 12px;
 }
 
 /* --- 6. Quantity Selectors & Add Buttons --- */
@@ -256,21 +253,21 @@ body {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  min-height: 45px;
+  min-height: 40px;
 }
 
 .add-btn {
-  background-color: #1A1A1A;
-  color: #C5A059;
+  background-color: #3E2723;
+  color: #EFEBE0;
   border: none;
-  padding: 10px 30px;
-  border-radius: 30px;
+  padding: 8px 24px;
+  border-radius: 24px;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 12px rgba(26, 26, 26, 0.2);
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(62, 39, 35, 0.2);
   transition: 0.2s ease;
 }
 
@@ -283,60 +280,54 @@ body {
   display: flex;
   align-items: center;
   background: #FFFFFF;
-  border-radius: 30px;
-  padding: 4px;
-  border: 1px solid #EAEAEA;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: 24px;
+  padding: 3px;
+  border: 1px solid #D7CCC8;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .quantity-selector button {
-  all: unset; /* Completely nukes the white overlapping egg issue */
+  all: unset;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: #F5F5F5;
-  color: #1A1A1A;
-  font-size: 1.2rem;
-  font-weight: 500;
+  background: #EFEBE0;
+  color: #3E2723;
+  font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
-  box-sizing: border-box;
 }
 
 .quantity-selector button:active {
-  background: #E0E0E0;
+  background: #D7CCC8;
 }
 
 .quantity-selector span {
-  min-width: 36px;
+  min-width: 32px;
   text-align: center;
   font-weight: 700;
-  color: #1A1A1A;
-  font-size: 1.1rem;
-}
-
-.quantity-selector.mini button {
-  width: 28px;
-  height: 28px;
+  color: #3E2723;
   font-size: 1rem;
 }
 
 /* --- 7. Cart & Modals --- */
 .cart-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100dvh;
   background: rgba(0,0,0,0.6);
-  z-index: 100;
+  z-index: 1000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
   display: flex;
   align-items: flex-end;
+  justify-content: center;
 }
 
 .cart-overlay.open {
@@ -345,8 +336,9 @@ body {
 }
 
 .cart-modal {
-  background: #FAFAFA;
+  background: #FAF8F5;
   width: 100%;
+  max-width: 430px;
   max-height: 85vh;
   border-radius: 24px 24px 0 0;
   padding: 24px;
@@ -368,19 +360,19 @@ body {
 }
 
 .cart-header h2 {
-  color: #1A1A1A;
+  color: #3E2723;
   font-size: 1.4rem;
   font-family: 'Playfair Display', Georgia, serif;
 }
 
 .close-btn {
-  background: #F0F0F0;
+  background: #EFEBE0;
   border: none;
   width: 32px;
   height: 32px;
   border-radius: 16px;
   font-weight: bold;
-  color: #1A1A1A;
+  color: #3E2723;
   cursor: pointer;
 }
 
@@ -392,7 +384,7 @@ body {
 
 .empty-cart {
   text-align: center;
-  color: #999999;
+  color: #8D6E63;
   padding: 40px 0;
   font-style: italic;
 }
@@ -401,56 +393,56 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 0;
-  border-bottom: 1px solid #EAEAEA;
+  padding: 12px 0;
+  border-bottom: 1px solid #EFEBE0;
 }
 
 .cart-item-info h4 {
   color: #1A1A1A;
-  font-size: 1.05rem;
+  font-size: 1rem;
   margin-bottom: 4px;
   font-weight: 700;
 }
 
 .cart-item-info p {
-  color: #C5A059;
+  color: #3E2723;
   font-weight: bold;
 }
 
 .cart-footer {
-  border-top: 2px solid #EAEAEA;
-  padding-top: 20px;
+  border-top: 2px solid #EFEBE0;
+  padding-top: 15px;
 }
 
 .total-row {
   display: flex;
   justify-content: space-between;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  color: #1A1A1A;
-  margin-bottom: 20px;
+  color: #3E2723;
+  margin-bottom: 15px;
 }
 
 .checkout-btn {
   width: 100%;
-  background: #1A1A1A;
-  color: #C5A059;
+  background: #3E2723;
+  color: #EFEBE0;
   border: none;
-  padding: 16px;
-  border-radius: 16px;
-  font-size: 1.1rem;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-/* --- 8. Inputs & Textareas (Login / Instructions) --- */
+/* --- 8. Inputs & Textareas --- */
 .login-form input, .instruction-box textarea {
   width: 100%;
-  padding: 16px;
-  margin-bottom: 15px;
-  border: 1px solid #EAEAEA;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid #D7CCC8;
   border-radius: 12px;
   font-size: 1rem;
   background: #FFFFFF;
@@ -460,16 +452,15 @@ body {
 }
 
 .login-form input:focus, .instruction-box textarea:focus {
-  border-color: #C5A059;
+  border-color: #3E2723;
 }
 
 .login-form input::placeholder, .instruction-box textarea::placeholder {
-  color: #A0A0A0;
-  font-style: italic;
+  color: #A1887F;
 }
 
 .error-text {
-  color: #D32F2F;
+  color: #C62828;
   margin-bottom: 15px;
   text-align: center;
   font-weight: bold;
@@ -477,8 +468,7 @@ body {
 
 .instruction-box textarea {
   resize: none;
-  min-height: 80px;
-  padding: 12px 15px;
+  min-height: 70px;
 }
 
 /* --- 9. Profile & Rewards --- */
@@ -488,13 +478,13 @@ body {
 
 .auth-prompt {
   text-align: center;
-  margin-top: 50px;
+  margin-top: 40px;
 }
 
 .auth-prompt h2 {
-  color: #1A1A1A;
-  margin-bottom: 30px;
-  font-size: 1.3rem;
+  color: #3E2723;
+  margin-bottom: 25px;
+  font-size: 1.2rem;
   font-family: 'Playfair Display', Georgia, serif;
 }
 
@@ -505,81 +495,80 @@ body {
 }
 
 .profile-avatar {
-  width: 80px;
-  height: 80px;
-  background: #1A1A1A;
-  color: #C5A059;
+  width: 75px;
+  height: 75px;
+  background: #3E2723;
+  color: #EFEBE0;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: bold;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   border: 2px solid #C5A059;
 }
 
 .profile-name {
-  color: #1A1A1A;
-  font-size: 1.4rem;
+  color: #3E2723;
+  font-size: 1.3rem;
   font-family: 'Playfair Display', Georgia, serif;
 }
 
 .profile-email {
-  color: #999999;
-  margin-bottom: 30px;
+  color: #8D6E63;
+  margin-bottom: 25px;
   font-size: 0.9rem;
 }
 
 .rewards-card {
-  background: #1A1A1A;
+  background: #3E2723;
   width: 100%;
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 18px;
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  box-shadow: 0 10px 20px rgba(26, 26, 26, 0.3);
+  margin-bottom: 25px;
+  box-shadow: 0 8px 16px rgba(62, 39, 35, 0.2);
   border: 1px solid rgba(197, 160, 89, 0.3);
 }
 
 .rewards-title {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #C5A059;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .rewards-points {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #FAFAFA;
+  color: #EFEBE0;
 }
 
 .rewards-icon {
-  font-size: 2.5rem;
-  opacity: 0.9;
+  font-size: 2.2rem;
 }
 
 /* --- 10. Order History --- */
 .orders-section {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .section-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .section-subtitle {
-  color: #1A1A1A;
-  font-size: 1.2rem;
+  color: #3E2723;
+  font-size: 1.1rem;
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 700;
 }
@@ -587,7 +576,7 @@ body {
 .logout-text-btn {
   background: none;
   border: none;
-  color: #D32F2F;
+  color: #C62828;
   font-weight: bold;
   cursor: pointer;
   font-size: 0.9rem;
@@ -595,35 +584,34 @@ body {
 
 .order-history-card {
   background: #FFFFFF;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  border: 1px solid #EAEAEA;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  border: 1px solid #EFEBE0;
 }
 
 .order-history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px dashed #EAEAEA;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #D7CCC8;
 }
 
 .order-date {
-  color: #999999;
-  font-size: 0.85rem;
+  color: #8D6E63;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
 .order-status {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .order-status.pending { background: #FFF8E1; color: #F57F17; }
@@ -634,35 +622,104 @@ body {
 .history-item-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #1A1A1A;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .order-history-footer {
   display: flex;
   justify-content: space-between;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #EAEAEA;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #EFEBE0;
   font-weight: 800;
-  color: #C5A059;
+  color: #3E2723;
 }
 
 .empty-text {
   text-align: center;
-  color: #999999;
+  color: #8D6E63;
   font-style: italic;
-  padding: 20px 0;
+  padding: 15px 0;
+}
+/* --- FIXED CART & AUTH OVERLAYS --- */
+.cart-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none; /* Crucial: Prevents invisible blocks when closed */
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
 
-/* --- STICKY SEARCH BAR FIX --- */
-/* --- BULLETPROOF STICKY SEARCH BAR --- */
-.search-filter-section {
-  position: sticky !important;
-  top: 0px !important; /* Pins it right to the very top when scrolling */
-  background: #FAFAFA !important;
-  z-index: 50 !important;
-  padding: 15px 20px 10px 20px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03); /* Adds a subtle shadow so it separates nicely from the scrolling cards */
+.cart-overlay.open {
+  opacity: 1;
+  pointer-events: auto; /* Re-enables clicks only when modal is open */
+}
+
+.cart-modal {
+  background: #FAF8F5;
+  width: 100%;
+  max-width: 430px;
+  max-height: 85vh;
+  border-radius: 24px 24px 0 0;
+  padding: 24px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1001; /* Ensures buttons inside modal are always on top */
+}
+
+.cart-overlay.open .cart-modal {
+  transform: translateY(0);
+}
+
+/* --- BULLETPROOF MODAL OVERLAY --- */
+.cart-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  background: rgba(0,0,0,0.7);
+  z-index: 99999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.cart-overlay.open {
+  visibility: visible;
+  opacity: 1;
+}
+
+.cart-modal {
+  background: #FAF8F5;
+  width: 100%;
+  max-width: 430px;
+  max-height: 85vh;
+  border-radius: 24px 24px 0 0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+  pointer-events: auto; /* Ensures clicks always register inside the modal */
+}
+
+.cart-overlay.open .cart-modal {
+  transform: translateY(0);
 }
