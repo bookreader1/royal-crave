@@ -9,8 +9,6 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
   ? "http://127.0.0.1:8000"
   : "https://king-crave-backend.onrender.com";
 
-  
-
 function App() {
   // --- CORE STATES ---
   const [activeTab, setActiveTab] = useState('menu');
@@ -147,8 +145,7 @@ function App() {
     setOtpStep(false);
   };
 
-const handleLogin = async () => {
-    alert("Button clicked!"); // <-- Immediate feedback test
+  const handleLogin = async () => {
     setAuthError('');
     try {
       await executeLoginCall();
@@ -523,7 +520,6 @@ const handleLogin = async () => {
       </div>
 
     </div>
-    
   )
 }
 
