@@ -1,4 +1,8 @@
 from django.urls import path
+from .views import CategoryViewSet # Make sure to import it!
+
+# If you already have a router, just add this line:
+# router.register(r'categories/manage', CategoryViewSet, basename='category-manage')
 from .views import (
     MenuListView, 
     CheckoutView, 

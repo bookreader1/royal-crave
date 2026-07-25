@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, RegisterSerializer
+from .emails import send_html_otp_email, send_html_welcome_email
 
 User = get_user_model()
 
@@ -47,13 +48,9 @@ class SendOTPView(APIView):
         OTP_STORAGE[email] = otp  # Save temporarily
         
         try:
-            send_mail(
-                'Your Royal Crave Verification Code',
-                f'Your OTP code is: {otp}',
-                None,
-                [email],
-                fail_silently=False,
-            )
+            # ---> REPLACE standard send_mail with your HTML function <---
+            send_html_otp_email(email, otp)
+            
             return Response({'message': 'OTP sent successfully to your email.'}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

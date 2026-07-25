@@ -1,22 +1,28 @@
-import { useState, useEffect } from 'react'
-import './App.css'
-import KitchenDashboard from './components/KitchenDashboard'
-import AdminDashboard from './components/AdminDashboard'
+import { useState, useEffect } from 'react';
+import { Search, User, ShoppingBag, Utensils } from 'lucide-react';
+import './App.css';
+import KitchenDashboard from './components/KitchenDashboard';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
+  // --- CORE STATES ---
   const [activeTab, setActiveTab] = useState('menu');
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
   const [loading, setLoading] = useState(true);
-  
   const [isGuest, setIsGuest] = useState(false);
   
+  // --- SEARCH STATE ---
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // --- CART STATES ---
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [specialInstructions, setSpecialInstructions] = useState('');
   
+  // --- AUTH & PROFILE STATES ---
   const [token, setToken] = useState(localStorage.getItem('access_token'));
   const [userProfile, setUserProfile] = useState(null);
   const [orders, setOrders] = useState([]); 
@@ -31,6 +37,7 @@ function App() {
   const [otpStep, setOtpStep] = useState(false);
   const [enteredOtp, setEnteredOtp] = useState('');
 
+  // --- API FETCHING ---
   useEffect(() => {
     fetch('http://127.0.0.1:8000/api/menu/')
       .then(res => res.json())
@@ -53,11 +60,10 @@ function App() {
 
     fetchMenu(); 
     const intervalId = setInterval(fetchMenu, 10000); 
-
     return () => clearInterval(intervalId); 
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     if (token) {
       fetch('http://127.0.0.1:8000/api/users/profile/', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -82,11 +88,12 @@ useEffect(() => {
       };
 
       fetchOrders();
-      const orderInterval = setInterval(fetchOrders, 10000); // Auto-refreshes every 10 seconds
+      const orderInterval = setInterval(fetchOrders, 10000); 
       return () => clearInterval(orderInterval);
     }
   }, [token]);
 
+  // --- AUTH HANDLERS ---
   const handleRequestOtp = async (e) => {
     e.preventDefault();
     setAuthError('');
@@ -97,7 +104,7 @@ useEffect(() => {
         body: JSON.stringify({ email: authEmail })
       });
       if (!response.ok) throw new Error('Failed to send OTP email.');
-      setOtpStep(true); // Move to OTP input screen
+      setOtpStep(true); 
     } catch (err) {
       setAuthError(err.message);
     }
@@ -149,6 +156,7 @@ useEffect(() => {
     setIsGuest(false);
   };
 
+  // --- CART HANDLERS ---
   const addToCart = (item) => {
     setCart(prev => {
       const existing = prev.find(c => c.id === item.id);
@@ -207,7 +215,7 @@ useEffect(() => {
     setIsSubmitting(false);
   };
 
-  // --- TRAFFIC CONTROLLER ---
+  // --- TRAFFIC CONTROLLER (ADMIN/KITCHEN) ---
   if (userProfile && userProfile.role === 'kitchen') {
     return <KitchenDashboard onLogout={handleLogout} token={token} />;
   }
@@ -216,9 +224,19 @@ useEffect(() => {
     return <AdminDashboard onLogout={handleLogout} token={token} />;
   }
 
+  // --- DERIVED STATE & SEARCH LOGIC ---
   const cartTotalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const currentCategoryData = categories.find(c => c.id === activeCategory);
+
+  let displayedItems = currentCategoryData?.items || [];
+
+  if (searchQuery) {
+    displayedItems = displayedItems.filter(item => 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }
 
   if (loading) return <div className="status-screen">Preparing your menu...</div>;
 
@@ -250,17 +268,34 @@ useEffect(() => {
             <div className="header-text">
               <h1>{activeTab === 'profile' ? 'My Profile' : 'Royal Crave'}</h1>
             </div>
-            <div style={{display: 'flex', gap: '10px'}}>
-              <button className="icon-btn" onClick={() => activeTab === 'profile' ? setActiveTab('menu') : setActiveTab('profile')}>
-                {activeTab === 'profile' ? '🍔' : '👤'}
+            <div style={{display: 'flex', gap: '15px', alignItems: 'center'}}>
+              <button className="icon-btn" onClick={() => activeTab === 'profile' ? setActiveTab('menu') : setActiveTab('profile')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#EFEBE0' }}>
+                {activeTab === 'profile' ? <Utensils size={24} /> : <User size={24} />}
               </button>
               {activeTab === 'menu' && (
-                <button className="icon-btn cart" onClick={() => setIsCartOpen(true)}>
-                  🛍️ {cartTotalItems > 0 && <span className="cart-badge">{cartTotalItems}</span>}
+                <button className="icon-btn cart" onClick={() => setIsCartOpen(true)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#EFEBE0', position: 'relative' }}>
+                  <ShoppingBag size={24} />
+                  {cartTotalItems > 0 && <span className="cart-badge">{cartTotalItems}</span>}
                 </button>
               )}
             </div>
           </header>
+
+          {/* STICKY SEARCH BAR */}
+          {activeTab === 'menu' && (
+            <div className="search-filter-section">
+              <div className="search-bar-container">
+                <Search size={18} color="#8D6E63" />
+                <input 
+                  type="text" 
+                  placeholder="Search for your crave..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input"
+                />
+              </div>
+            </div>
+          )}
 
           {activeTab === 'menu' ? (
             <>
@@ -272,18 +307,23 @@ useEffect(() => {
                 ))}
               </div>
               <main className="items-list">
-                {currentCategoryData?.items.map(item => {
+                {displayedItems.map(item => {
                   const q = cart.find(c => c.id === item.id)?.quantity || 0;
                   return (
                     <div key={item.id} className="premium-card">
                       <div className="card-image-container">
-                        <img src={item.image || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80"} alt="Food" className="card-image"/>
+                        <img src={item.image || "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80"} alt={item.name} className="card-image"/>
                       </div>
                       <div className="card-content">
                         <div className="card-header-row">
                           <h3 className="item-title">{item.name}</h3>
                           <span className="item-price">₹{item.price}</span>
                         </div>
+                        {item.description && (
+                          <p style={{ fontSize: '0.85rem', color: '#888', margin: '4px 0 10px 0', lineHeight: '1.4' }}>
+                            {item.description}
+                          </p>
+                        )}
                         <div className="card-footer">
                           {q === 0 ? <button className="add-btn" onClick={() => addToCart(item)}>Add</button> : 
                           <div className="quantity-selector"><button onClick={() => updateQuantity(item.id, -1)}>-</button><span>{q}</span><button onClick={() => updateQuantity(item.id, 1)}>+</button></div>}
@@ -292,6 +332,12 @@ useEffect(() => {
                     </div>
                   );
                 })}
+                {displayedItems.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#888' }}>
+                    <Search size={40} color="#555" style={{ marginBottom: '15px' }} />
+                    <p>No items found matching your search.</p>
+                  </div>
+                )}
               </main>
             </>
           ) : (
@@ -467,4 +513,4 @@ useEffect(() => {
   )
 }
 
-export default App
+export default App;
