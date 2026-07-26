@@ -41,6 +41,7 @@ function App() {
   const [authError, setAuthError] = useState('');
   const [otpStep, setOtpStep] = useState(false);
   const [enteredOtp, setEnteredOtp] = useState('');
+  const [isAuthLoading, setIsAuthLoading] = useState(false); 
 
   // --- API FETCHING ---
   useEffect(() => {
@@ -102,6 +103,7 @@ function App() {
   // --- AUTH HANDLERS ---
   const handleRequestOtp = async () => {
     setAuthError('');
+    setIsAuthLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/send-otp/`, {
         method: 'POST',
@@ -112,11 +114,14 @@ function App() {
       setOtpStep(true); 
     } catch (err) {
       setAuthError(err.message);
+    } finally {
+      setIsAuthLoading(false);
     }
   };
 
   const handleRegister = async () => {
     setAuthError('');
+    setIsAuthLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/register/`, {
         method: 'POST',
@@ -127,6 +132,8 @@ function App() {
       await executeLoginCall(); 
     } catch (err) {
       setAuthError(err.message);
+    } finally {
+      setIsAuthLoading(false);
     }
   };
 
@@ -147,10 +154,13 @@ function App() {
 
   const handleLogin = async () => {
     setAuthError('');
+    setIsAuthLoading(true);
     try {
       await executeLoginCall();
     } catch (err) {
       setAuthError(err.message);
+    } finally {
+      setIsAuthLoading(false);
     }
   };
 
@@ -177,13 +187,12 @@ function App() {
     setCart(prev => prev.map(item => item.id === id ? { ...item, quantity: item.quantity + delta } : item).filter(i => i.quantity > 0));
   };
 
-
-  
   const handleCheckout = async () => {
     if (!token) {
       alert("Please login from the Profile tab to place an order.");
       setIsCartOpen(false);
       setShowLoginModal(true);
+      setOtpStep(false); // Ensure clean state if opening modal
       return;
     }
 
@@ -259,11 +268,11 @@ function App() {
           <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 3.5rem)', margin: '0 0 10px 0', color: '#EFEBE0', fontFamily: 'serif' }}>Royal Crave</h1>
           <p style={{ fontSize: 'clamp(1rem, 4vw, 1.2rem)', color: '#BCAAA4', marginBottom: '40px' }}>Your premium dining experience.</p>
           
-          <button className="checkout-btn" onClick={() => { setIsRegistering(false); setShowLoginModal(true); }} style={{ width: '100%', maxWidth: '300px', marginBottom: '15px', background: '#EFEBE0', color: '#3E2723' }}>
+          <button className="checkout-btn" onClick={() => { setIsRegistering(false); setShowLoginModal(true); setOtpStep(false); }} style={{ width: '100%', maxWidth: '300px', marginBottom: '15px', background: '#EFEBE0', color: '#3E2723' }}>
             Log In
           </button>
           
-          <button className="checkout-btn" onClick={() => { setIsRegistering(true); setShowLoginModal(true); }} style={{ width: '100%', maxWidth: '300px', marginBottom: '25px', background: '#B46B54', color: '#FFF' }}>
+          <button className="checkout-btn" onClick={() => { setIsRegistering(true); setShowLoginModal(true); setOtpStep(false); }} style={{ width: '100%', maxWidth: '300px', marginBottom: '25px', background: '#B46B54', color: '#FFF' }}>
             Create an Account
           </button>
 
@@ -355,7 +364,7 @@ function App() {
               {!token ? (
                 <div className="auth-prompt">
                   <h2>Sign in to see your royal rewards and order history.</h2>
-                  <button className="checkout-btn" onClick={() => setShowLoginModal(true)}>Login / Register</button>
+                  <button className="checkout-btn" onClick={() => { setShowLoginModal(true); setOtpStep(false); }}>Login / Register</button>
                 </div>
               ) : userProfile ? (
                 <div className="profile-dashboard">
@@ -472,7 +481,11 @@ function App() {
         <div className="cart-modal">
           <div className="cart-header">
             <h2>{isRegistering ? 'Join Royal Crave' : 'Welcome Back'}</h2>
-            <button className="close-btn" onClick={() => setShowLoginModal(false)}>✕</button>
+            <button className="close-btn" onClick={() => { 
+              setShowLoginModal(false); 
+              setOtpStep(false); 
+              setAuthError('');
+            }}>✕</button>
           </div>
           
           <div className="login-form">
@@ -485,16 +498,29 @@ function App() {
                   <input type="text" placeholder="Last Name" value={authLastName} onChange={e => setAuthLastName(e.target.value)} />
                 </div>
                 <input type="email" placeholder="Email Address" value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{marginBottom: '10px'}} />
-                <button type="button" className="checkout-btn" onClick={handleRequestOtp} style={{marginTop: '10px'}}>Send Verification OTP</button>
+                <button type="button" className="checkout-btn" onClick={handleRequestOtp} disabled={isAuthLoading} style={{marginTop: '10px', opacity: isAuthLoading ? 0.7 : 1}}>
+                  {isAuthLoading ? 'Sending OTP...' : 'Send Verification OTP'}
+                </button>
               </>
             )}
 
             {isRegistering && otpStep && (
               <>
-                <p style={{color: '#8D6E63', fontSize: '0.9rem', marginBottom: '10px'}}>Enter the 6-digit code sent to {authEmail}</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <p style={{ color: '#8D6E63', fontSize: '0.9rem', margin: 0 }}>Code sent to {authEmail}</p>
+                  <button 
+                    type="button" 
+                    onClick={() => setOtpStep(false)} 
+                    style={{ background: 'none', border: 'none', color: '#B46B54', fontSize: '0.85rem', textDecoration: 'underline', cursor: 'pointer' }}
+                  >
+                    Change Email
+                  </button>
+                </div>
                 <input type="text" placeholder="Enter 6-digit OTP" value={enteredOtp} onChange={e => setEnteredOtp(e.target.value)} style={{marginBottom: '10px'}} />
                 <input type="password" placeholder="Choose Password (min 8 chars)" value={authPassword} onChange={e => setAuthPassword(e.target.value)} style={{marginBottom: '10px'}} />
-                <button type="button" className="checkout-btn" onClick={handleRegister} style={{marginTop: '10px'}}>Verify & Complete Registration</button>
+                <button type="button" className="checkout-btn" onClick={handleRegister} disabled={isAuthLoading} style={{marginTop: '10px', opacity: isAuthLoading ? 0.7 : 1}}>
+                  {isAuthLoading ? 'Verifying...' : 'Verify & Complete Registration'}
+                </button>
               </>
             )}
 
@@ -502,7 +528,9 @@ function App() {
               <>
                 <input type="email" placeholder="Email Address" value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{marginBottom: '10px'}}/>
                 <input type="password" placeholder="Password" value={authPassword} onChange={e => setAuthPassword(e.target.value)} />
-                <button type="button" className="checkout-btn" onClick={handleLogin} style={{marginTop: '20px'}}>Sign In</button>
+                <button type="button" className="checkout-btn" onClick={handleLogin} disabled={isAuthLoading} style={{marginTop: '20px', opacity: isAuthLoading ? 0.7 : 1}}>
+                  {isAuthLoading ? 'Signing In...' : 'Sign In'}
+                </button>
               </>
             )}
           </div>
@@ -510,7 +538,11 @@ function App() {
           <div style={{textAlign: 'center', marginTop: '20px'}}>
             <p style={{color: '#8D6E63', fontSize: '0.9rem'}}>
               {isRegistering ? 'Already have an account? ' : 'New to Royal Crave? '}
-              <button onClick={() => { setIsRegistering(!isRegistering); setAuthError(''); }} style={{background: 'none', border: 'none', color: '#B46B54', fontWeight: 'bold', cursor: 'pointer'}}>
+              <button onClick={() => { 
+                setIsRegistering(!isRegistering); 
+                setAuthError(''); 
+                setOtpStep(false); 
+              }} style={{background: 'none', border: 'none', color: '#B46B54', fontWeight: 'bold', cursor: 'pointer'}}>
                 {isRegistering ? 'Sign In' : 'Create an Account'}
               </button>
             </p>
