@@ -166,9 +166,9 @@ SIMPLE_JWT = {
 }
 
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+#EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # --- EMAIL CONFIGURATION (ANYMAIL / BREVO API) ---
-#EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
 
 ANYMAIL = {
     "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
