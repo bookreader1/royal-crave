@@ -1,18 +1,23 @@
 import { useState, useEffect } from 'react';
 
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? "http://127.0.0.1:8000"
+  : "https://king-crave-backend.onrender.com";
+
 export default function KitchenDashboard({ onLogout, token }) {
   const [kitchenOrders, setKitchenOrders] = useState([]);
   const [loadingQueue, setLoadingQueue] = useState(true);
 
   const fetchQueue = () => {
-    fetch('http://127.0.0.1:8000/api/kitchen/orders/', {
+    fetch(`${API_BASE_URL}/api/kitchen/orders/`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => res.json())
     .then(data => {
       if (Array.isArray(data)) setKitchenOrders(data);
       setLoadingQueue(false);
-    });
+    })
+    .catch(err => console.error("Error fetching queue:", err));
   };
 
   useEffect(() => {
@@ -23,7 +28,7 @@ export default function KitchenDashboard({ onLogout, token }) {
 
   const updateStatus = async (orderId, newStatus) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/orders/${orderId}/status/`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +62,6 @@ export default function KitchenDashboard({ onLogout, token }) {
                 </div>
                 <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: '15px' }}>🕒 {order.created_at_formatted}</p>
                 
-                {/* Clean Itemized Box */}
                 <div style={{ background: '#2A2A2A', borderRadius: '8px', padding: '12px', marginBottom: '15px' }}>
                   {order.items && order.items.map((item, idx) => (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#FFF', fontSize: '1rem' }}>
@@ -75,7 +79,6 @@ export default function KitchenDashboard({ onLogout, token }) {
                 )}
               </div>
 
-              {/* Status Action Buttons */}
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 {order.status === 'Pending' && (
                   <button onClick={() => updateStatus(order.id, 'Preparing')} style={{ flex: 1, background: '#2196F3', color: '#FFF', border: 'none', padding: '10px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>Start Preparing</button>
