@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'anymail',  # <-- Add this here
     # Third party
     'rest_framework',
     'corsheaders',
@@ -166,9 +167,20 @@ SIMPLE_JWT = {
 
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+# --- EMAIL CONFIGURATION (ANYMAIL / BREVO API) ---
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+
+ANYMAIL = {
+    "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
+}
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "kempire695@gmail.com")
+
+# # --- EMAIL CONFIGURATION (ANYMAIL / BREVO API) ---
+# EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+
+# ANYMAIL = {
+#     "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
+# }
+
+# DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "kempire695@gmail.com")

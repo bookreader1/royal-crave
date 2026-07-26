@@ -1,8 +1,10 @@
 from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
 
 def send_html_otp_email(user_email, otp_code):
     subject = "Your Royal Crave Verification Code"
-    from_email = "Royal Crave <noreply@royalcrave.com>"
+    #from_email = "Royal Crave <noreply@royalcrave.com>"
+    from_email = settings.DEFAULT_FROM_EMAIL
     to = [user_email]
 
     html_content = f"""
@@ -50,7 +52,7 @@ def send_html_otp_email(user_email, otp_code):
 
 def send_html_welcome_email(user_email, first_name):
     subject = "Welcome to Royal Crave!"
-    from_email = "Royal Crave <noreply@royalcrave.com>"
+    from_email = settings.DEFAULT_FROM_EMAIL
     to = [user_email]
 
     name_display = first_name if first_name else "Valued Guest"
