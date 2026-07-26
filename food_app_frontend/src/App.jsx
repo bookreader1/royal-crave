@@ -265,7 +265,7 @@ function App() {
       {/* LANDING GATEWAY */}
       {!token && !isGuest ? (
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100dvh', width: '100vw', background: '#3E2723', padding: '20px', textAlign: 'center', boxSizing: 'border-box', position: 'fixed', top: 0, left: 0, zIndex: 9999, overflow: 'hidden' }}>
-          <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 3.5rem)', margin: '0 0 10px 0', color: '#EFEBE0', fontFamily: 'serif' }}>Royal Crave</h1>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 3.5rem)', margin: '0 0 10px 0', color: '#EFEBE0', fontFamily: 'serif' }}>KingzCrave</h1>
           <p style={{ fontSize: 'clamp(1rem, 4vw, 1.2rem)', color: '#BCAAA4', marginBottom: '40px' }}>Your premium dining experience.</p>
           
           <button className="checkout-btn" onClick={() => { setIsRegistering(false); setShowLoginModal(true); setOtpStep(false); }} style={{ width: '100%', maxWidth: '300px', marginBottom: '15px', background: '#EFEBE0', color: '#3E2723' }}>
@@ -285,7 +285,7 @@ function App() {
         <div className="mobile-container">
           <header className="app-header">
             <div className="header-text">
-              <h1>{activeTab === 'profile' ? 'My Profile' : 'Royal Crave'}</h1>
+              <h1>{activeTab === 'profile' ? 'My Profile' : 'KingzCrave'}</h1>
             </div>
             <div style={{display: 'flex', gap: '15px', alignItems: 'center'}}>
               <button className="icon-btn" onClick={() => activeTab === 'profile' ? setActiveTab('menu') : setActiveTab('profile')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#EFEBE0' }}>
@@ -480,7 +480,7 @@ function App() {
       <div className={`cart-overlay ${showLoginModal ? 'open' : ''}`}>
         <div className="cart-modal">
           <div className="cart-header">
-            <h2>{isRegistering ? 'Join Royal Crave' : 'Welcome Back'}</h2>
+            <h2>{isRegistering ? 'Join KingzCrave' : 'Welcome Back'}</h2>
             <button className="close-btn" onClick={() => { 
               setShowLoginModal(false); 
               setOtpStep(false); 
@@ -537,7 +537,7 @@ function App() {
 
           <div style={{textAlign: 'center', marginTop: '20px'}}>
             <p style={{color: '#8D6E63', fontSize: '0.9rem'}}>
-              {isRegistering ? 'Already have an account? ' : 'New to Royal Crave? '}
+              {isRegistering ? 'Already have an account? ' : 'New to KingzCrave? '}
               <button onClick={() => { 
                 setIsRegistering(!isRegistering); 
                 setAuthError(''); 
