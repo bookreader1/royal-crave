@@ -1,6 +1,6 @@
 from rest_framework import serializers
+from django.db import transaction
 from .models import MenuItem, Category, Order, OrderItem
-from users.serializers import UserSerializer
 
 class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,28 +16,39 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     item_name = serializers.CharField(source='menu_item.name', read_only=True)
-    price = serializers.DecimalField(max_digits=6, decimal_places=2, source='menu_item.price', read_only=True)
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'menu_item', 'quantity', 'item_name', 'price']
+        fields = ['id', 'menu_item', 'item_name', 'quantity', 'price']
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, source='orderitem_set', read_only=True)
     cart_items = serializers.ListField(child=serializers.DictField(), write_only=True, required=False)
-    customer_name = serializers.ReadOnlyField(source='customer.first_name')
+    
+    # Customer Details (Email fallback if first_name is empty)
+    customer_name = serializers.SerializerMethodField(read_only=True)
+    customer_email = serializers.ReadOnlyField(source='customer.email')
+    
     created_at_formatted = serializers.DateTimeField(source='created_at', format="%Y-%m-%d %H:%M", read_only=True)
 
     class Meta:
         model = Order
         fields = [
-            'id', 'customer', 'customer_name', 'total_amount', 
+            'id', 'customer', 'customer_name', 'customer_email', 'total_amount', 
             'delivery_address', 'special_instructions', 'status', 
-            'created_at', 'created_at_formatted', 'items', 'cart_items'
-            , 'preparing_at', 'delivered_at'
+            'created_at', 'created_at_formatted', 'items', 'cart_items',
+            'preparing_at', 'delivered_at'
         ]
-        read_only_fields = ['customer', 'created_at']
+        # Secure total_amount so client payload cannot override server calculations
+        read_only_fields = ['customer', 'total_amount', 'created_at']
 
+    def get_customer_name(self, obj):
+        if obj.customer:
+            full_name = obj.customer.get_full_name()
+            return full_name if full_name.strip() else obj.customer.email
+        return "Guest"
+
+    @transaction.atomic
     def create(self, validated_data):
         cart_items = validated_data.pop('cart_items', [])
         order = Order.objects.create(**validated_data)
@@ -50,13 +61,14 @@ class OrderSerializer(serializers.ModelSerializer):
             if item_id:
                 try:
                     menu_item = MenuItem.objects.get(id=item_id)
-                    item_price = menu_item.price * quantity
-                    calculated_total += item_price
+                    line_price = menu_item.price * quantity
+                    calculated_total += line_price
+                    
                     OrderItem.objects.create(
                         order=order, 
                         menu_item=menu_item, 
                         quantity=quantity,
-                        price=item_price
+                        price=line_price
                     )
                 except MenuItem.DoesNotExist:
                     continue
